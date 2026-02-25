@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ChordShift 🎵</title>
+<style>
+  body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Arial', sans-serif;
+    background-color: #4a4a4a;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    text-align: center;
+    align-items: center;
+  }
+
+  header {
+    padding: 20px 10px;
+    border-bottom: 2px solid #fff;
+    width: 100%;
+  }
+  header h1 {
+    margin: 0 0 5px 0;
+    font-size: 1.8em;
+    font-weight: bold;
+  }
+  header p {
+    margin: 0;
+    font-size: 0.95em;
+    color: #eee;
+  }
+
+  textarea, select, button {
+    width: 90%;
+    max-width: 360px;
+    padding: 14px;
+    margin: 10px 0;
+    font-size: 15px;
+    border-radius: 10px;
+    border: none;
+    background-color: #666;
+    color: #fff;
+    box-sizing: border-box;
+  }
+  button {
+    cursor: pointer;
+    font-weight: bold;
+  }
+
+  .piano-section {
+    position: relative;
+    width: 80%;
+    max-width: 360px;
+    margin-top: 20px;
+    height: 100px; /* space for floating notes */
+  }
+  .piano {
+    width: 100%;
+    height: 80px;
+    background: url('piano.png') no-repeat center bottom;
+    background-size: contain;
+  }
+
+  .music-note {
+    position: absolute;
+    color: #fff;
+    font-size: 20px;
+    opacity: 0.6;
+    animation: floatNote 6s linear infinite;
+    bottom: 0; /* start at bottom of piano section */
+  }
+  @keyframes floatNote {
+    0% { transform: translateY(0px) rotate(0deg); }
+    100% { transform: translateY(-120px) rotate(360deg); }
+  }
+
+  footer {
+    font-size: 12px;
+    color: #ccc;
+    padding: 6px 10px;
+    margin-top: 5px; /* moved up so visible */
+  }
+
+  @media(max-width: 400px){
+    textarea, select, button, .piano-section {
+      max-width: 95%;
+    }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>ChordShift 🎵</h1>
+  <p>Paste your chords here, pick semitones, and hit “Transpose!”</p>
+</header>
+
+<textarea id="input" rows="10" placeholder="Paste your chords here"></textarea>
+<select id="transpose">
+  <option value="12">Up 12</option>
+  <option value="7">Up 7</option>
+  <option value="5">Up 5</option>
+  <option value="3">Up 3</option>
+  <option value="2">Up 2</option>
+  <option value="1">Up 1</option>
+  <option value="0" selected>No Change</option>
+  <option value="-1">Down 1</option>
+  <option value="-2">Down 2</option>
+  <option value="-3">Down 3</option>
+  <option value="-5">Down 5</option>
+  <option value="-7">Down 7</option>
+  <option value="-12">Down 12</option>
+</select>
+<button onclick="transpose()">Transpose!</button>
+
+<div class="piano-section">
+  <div class="piano"></div>
+  <!-- Floating music notes -->
+  <div class="music-note" style="left:10%;">🎵</div>
+  <div class="music-note" style="left:25%;">🎶</div>
+  <div class="music-note" style="left:40%;">🎵</div>
+  <div class="music-note" style="left:60%;">🎶</div>
+  <div class="music-note" style="left:75%;">🎵</div>
+  <div class="music-note" style="left:90%;">🎶</div>
+</div>
+
+<footer>
+  © 2026 ChordShift. Made for musicians by musicians.<br>
+  by Easton
+</footer>
+
+<script>
+const notes = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+const flatMap = {'Db':'C#','Eb':'D#','Gb':'F#','Ab':'G#','Bb':'A#'};
+
+function transpose() {
+  const inputEl = document.getElementById('input');
+  const input = inputEl.value.split('\n');
+  const shift = parseInt(document.getElementById('transpose').value);
+  let output = [];
+
+  for(let line of input){
+    let words = line.split(/(\s+)/);
+    let newLine = words.map(word => {
+      let base = word.replace(/[^A-G#b]/g,'');
+      let suffix = word.substring(base.length);
+      if(flatMap[base]) base = flatMap[base];
+      let idx = notes.indexOf(base);
+      if(idx >= 0){
+        let newIdx = (idx + shift + 12) % 12;
+        return notes[newIdx] + suffix;
+      } else {
+        return word;
+      }
+    }).join('');
+    output.push(newLine);
+  }
+
+  // Replace the textarea content with the new chords
+  inputEl.value = output.join('\n');
+}
+</script>
+
+</body>
+</html>
